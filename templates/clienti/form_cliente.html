@@ -1,0 +1,30 @@
+<!-- Estende il layout di base per ereditare testata, menu e script -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Nuovo Cliente</h3>
+
+    <!-- Il tag <form> definisce l'invio dei dati al server -->
+    <!-- method="post" è obbligatorio per operazioni di scrittura/creazione -->
+    <form method="post">
+        
+        <!-- SICUREZZA: Questo tag è fondamentale in Django. 
+             Genera un codice univoco per prevenire attacchi Cross-Site Request Forgery (CSRF),
+             senza il quale Django rifiuterebbe il salvataggio per sicurezza. -->
+        {% csrf_token %}
+
+        <!-- RENDERING AUTOMATICO: 'form' è l'oggetto passato dalla view (solitamente un ModelForm).
+             '.as_p' istruisce Django a renderizzare ogni campo (nome, cognome, etc.) 
+             all'interno di un tag HTML <p> (paragrafo). -->
+        {{ form.as_p }}
+
+        <!-- Pulsante di invio: invia i dati inseriti alla view per la validazione -->
+        <button class="btn btn-success" type="submit">Salva</button>
+
+        <!-- Pulsante di uscita: riporta l'utente alla lista senza salvare nulla -->
+        <a class="btn btn-secondary" href="{% url 'clienti:lista_clienti' %}">Annulla</a>
+        
+    </form>
+</div>
+{% endblock %}

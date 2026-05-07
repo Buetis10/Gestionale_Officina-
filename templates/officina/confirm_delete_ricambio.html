@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Conferma rimozione ricambio</h3>
+    <p>Sei sicuro di voler rimuovere {{ ru.ricambio.codice }} x{{ ru.quantita }} dall'ordine #{{ ru.ordine_lavoro.id }}?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button class="btn btn-danger" type="submit">Conferma rimozione</button>
+        <a class="btn btn-secondary" href="{% url 'officina:dettaglio_ordine' ru.ordine_lavoro.id %}">Annulla</a>
+    </form>
+</div>
+{% endblock %}

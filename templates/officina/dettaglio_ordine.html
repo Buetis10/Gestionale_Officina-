@@ -1,0 +1,142 @@
+<!-- 1. Eredita il layout globale (barra di navigazione, font, ecc.) -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Pulsante di ritorno con icona Bootstrap (bi-arrow-left) -->
+    <a href="{% url 'officina:dashboard' %}" class="btn btn-outline-secondary mb-4">
+        <i class="bi bi-arrow-left"></i> Torna alla Dashboard
+    </a>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <!-- Card con ombra (shadow-lg) per far risaltare il documento -->
+            <div class="card shadow-lg">
+                
+                <!-- HEADER: Colore dinamico gestito tramite variabili CSS del tuo tema -->
+                <div class="card-header text-white text-center" style="background-color: var(--color-primary);">
+                    <h3 class="mb-0">SCHEDA LAVORO #{{ ordine.id }}</h3>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <!-- SEZIONE VEICOLO: Mostra Targa e Modello in grassetto -->
+                        <div class="col-md-7">
+                            <h5 class="text-muted small text-uppercase">Dati Veicolo</h5>
+                            <p class="h2"><strong>{{ ordine.veicolo.targa }}</strong></p>
+                            <p class="lead">{{ ordine.veicolo.marca }} {{ ordine.veicolo.modello }}</p>
+                        </div>
+
+                        <!-- BADGE DI STATO: Qui c'è una logica condizionale (if/elif/else) 
+                             per cambiare il colore del cerchio in base allo stato del database -->
+                        <div class="col-md-5 text-md-end">
+                            <h5 class="text-muted small text-uppercase">Stato Attuale</h5>
+                            <div class="badge rounded-pill px-4 py-3" 
+                                 style="font-size: 1.2rem; background-color: 
+                                 {% if ordine.stato == 'attesa' %}var(--color-card-border)
+                                 {% elif ordine.stato == 'lavorazione' %}var(--color-accent)
+                                 {% else %}#22c55e{% endif %}; color: white;">
+                                {{ ordine.get_stato_display|upper }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- DATI OPERATIVI: Data di apertura e Meccanico assegnato -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-calendar-event"></i> Aperto il:</h6>
+                            <p>{{ ordine.data_apertura|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-person-badge"></i> Meccanico:</h6>
+                            <!-- Fallback: se non c'è il nome completo, mostra l'username -->
+                            <p>{{ ordine.meccanico.get_full_name|default:ordine.meccanico.username }}</p>
+                        </div>
+                    </div>
+
+                    <!-- DESCRIZIONE DEL PROBLEMA: Box grigio per separare il testo -->
+                    <div class="mt-3">
+                        <h6><i class="bi bi-chat-left-text"></i> Problema segnalato:</h6>
+                        <div class="p-3 border rounded bg-light">
+                            {{ ordine.descrizione_problema }}
+                        </div>
+                    </div>
+
+                    <!-- FORM INLINE PER INTERVENTI: 
+                         Usa il 'collapse' di Bootstrap per non occupare spazio finché non serve -->
+                    <div class="mt-3">
+                        <a class="btn btn-sm btn-secondary" data-bs-toggle="collapse" href="#formIntervento" role="button">
+                            Aggiungi intervento (inline)
+                        </a>
+                        <div class="collapse mt-2" id="formIntervento">
+                            <form method="post" action="{% url 'officina:aggiungi_intervento' ordine.id %}">
+                                {% csrf_token %} <!-- Obbligatorio per la sicurezza Django contro attacchi CSRF -->
+                                <div class="mb-2">
+                                    <input name="descrizione" class="form-control" placeholder="Cosa hai fatto?">
+                                </div>
+                                <div class="row">
+                                    <div class="col"><input name="ore_lavorate" class="form-control" placeholder="Ore"></div>
+                                    <div class="col"><input name="costo_manodopera" class="form-control" placeholder="Costo €"></div>
+                                </div>
+                                <button class="btn btn-primary btn-sm mt-2" type="submit">Salva intervento</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- SEZIONE RICAMBI: Lista dinamica con pulsante di rimozione -->
+                    <div class="mt-4">
+                        <h6>Ricambi usati</h6>
+                        <ul class="list-group">
+                            {% for ru in ordine.ricambi_usati.all %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ ru.ricambio.codice }}</strong> - x{{ ru.quantita }} (€{{ ru.prezzo_unitario }})
+                                    </div>
+                                    <!-- Form per eliminare un ricambio se caricato per errore -->
+                                    <form method="post" action="{% url 'officina:rimuovi_ricambio_usato' ru.pk %}">
+                                        {% csrf_token %}
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">Rimuovi</button>
+                                    </form>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item text-muted">Nessun ricambio registrato.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- FOOTER AZIONI: Qui entrano in gioco i permessi (RBAC) -->
+                <div class="card-footer bg-white border-0 d-flex flex-column align-items-center pb-4">
+                    <div class="d-flex gap-2 w-100 justify-content-center">
+                        
+                        <!-- Pulsanti operativi base -->
+                        <a href="{% url 'officina:aggiungi_ricambio' ordine.id %}" class="btn btn-outline-primary">Ricambio</a>
+                        <a href="{% url 'officina:aggiungi_intervento' ordine.id %}" class="btn btn-outline-primary">Intervento</a>
+
+                        <!-- PROTEZIONE TITOLARE: Solo chi ha il ruolo 'titolare' può fatturare -->
+                        {% if user.is_authenticated and user.profilo.ruolo|lower == 'titolare' %}
+                            <a href="{% url 'fatturazione:crea_fattura' ordine.id %}" class="btn btn-outline-success">Crea Preventivo</a>
+
+                            <!-- Controllo esistenza fattura: se esiste, abilita la stampa PDF -->
+                            {% if ordine.documento_fiscale %}
+                                <a href="{% url 'fatturazione:genera_pdf_fattura' ordine.documento_fiscale.id %}" target="_blank" class="btn btn-danger">
+                                    Stampa Fattura
+                                </a>
+                            {% else %}
+                                <button class="btn btn-danger" disabled>Nessuna Fattura</button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Nota di avvertimento per l'utente -->
+                    <p class="text-muted small mt-2 mb-0">
+                        <i class="bi bi-exclamation-circle"></i> Il preventivo deve essere approvato prima della fatturazione.
+                    </p>
+                </div>
+            </div> 
+        </div> 
+    </div>
+</div> 
+{% endblock %}

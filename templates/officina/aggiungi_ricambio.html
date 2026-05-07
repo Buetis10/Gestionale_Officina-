@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Aggiungi ricambio a Ordine #{{ ordine.id }} - {{ ordine.veicolo.targa }}</h3>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.ricambio.label_tag }}
+            {{ form.ricambio }}
+        </div>
+        <div class="mb-3">
+            {{ form.quantita.label_tag }}
+            {{ form.quantita }}
+        </div>
+        <button class="btn btn-primary" type="submit">Aggiungi</button>
+        <a class="btn btn-secondary" href="{% url 'officina:dettaglio_ordine' ordine.id %}">Annulla</a>
+    </form>
+</div>
+{% endblock %}

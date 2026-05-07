@@ -1,0 +1,46 @@
+<!-- Estende il layout base per mantenere l'estetica coerente in tutta l'app -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Pulsante per tornare alla scheda del proprietario del veicolo -->
+    <!-- Notare l'accesso alla relazione: veicolo -> cliente -> id -->
+    <a href="{% url 'clienti:dettaglio_cliente' veicolo.cliente.id %}" class="btn btn-outline-secondary mb-3">Indietro</a>
+    
+    <!-- Intestazione con i dati principali del veicolo -->
+    <h3>{{ veicolo.targa }} - {{ veicolo.marca }} {{ veicolo.modello }}</h3>
+    <p><strong>Anno:</strong> {{ veicolo.anno }}</p>
+    <p><strong>KM:</strong> {{ veicolo.km }}</p>
+
+    <h4 class="mt-4">Storico Interventi</h4>
+    <!-- Tabella cronologica delle lavorazioni passate e presenti -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Descrizione</th>
+                <th>Stato</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Ciclo for che itera sulla lista degli ordini di lavoro (query: OrdineLavoro.objects.filter(veicolo=veicolo)) -->
+            {% for o in ordini %}
+            <tr>
+                <!-- Formattazione data italiana: giorno/mese/anno -->
+                <td>{{ o.data_apertura|date:"d/m/Y" }}</td>
+                
+                <!-- Mostra la descrizione del primo intervento dell'ordine come anteprima -->
+                <!-- Se non ci sono interventi, usa il filtro 'default' per mostrare un trattino -->
+                <td>{{ o.interventi.first.descrizione|default:'-' }}</td>
+                
+                <!-- get_stato_display trasforma il valore del database (es: 'attesa') in quello umano (es: 'In attesa') -->
+                <td>{{ o.get_stato_display }}</td>
+            </tr>
+            {% empty %}
+            <!-- Messaggio mostrato se l'auto è nuova nel sistema e non ha ancora ordini registrati -->
+            <tr><td colspan="3">Nessun intervento</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

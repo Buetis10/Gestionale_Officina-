@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        /* CONFIGURAZIONE PAGINA: 
+           Specifica il formato A4 e margini fissi, essenziali per una stampa 
+           che non tagli le informazioni sui bordi. */
+        @page { size: A4; margin: 1cm; }
+        
+        body { font-family: 'Helvetica', sans-serif; color: #333; padding: 15px; }
+
+        /* HEADER PROFESSIONALE: 
+           Crea una testata con una linea blu (identificativa del brand dell'officina) 
+           per separare i dati aziendali dal resto del documento. */
+        .header { border-bottom: 3px solid #0d6efd; padding-bottom: 10px; margin-bottom: 20px; }
+        .header h1 { color: #0d6efd; margin: 0; }
+
+        /* TABELLE DATI: 
+           Layout pulito senza bordi pesanti, tipico della documentazione aziendale moderna. */
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #0d6efd; color: #fff; padding: 8px; }
+        td { padding: 8px; border-bottom: 1px solid #eee; }
+
+        /* BLOCCO TOTALI: 
+           Allineato a destra per facilitare la lettura veloce del costo finale. */
+        .totals { margin-top: 20px; max-width: 260px; margin-left: auto; }
+        .totals td { text-align: right; }
+    </style>
+</head>
+<body>
+    <!-- Intestazione del Documento -->
+    <div class="header">
+        <h1>Preventivo Officina</h1>
+        <div>Preventivo #: {{ preventivo.id }} - Ordine #{{ preventivo.ordine.id }}</div>
+        <div>Data: {{ preventivo.data_creazione|date:"d/m/Y H:i" }}</div>
+    </div>
+
+    <!-- Sezione Anagrafica: Dati Cliente e Mezzo -->
+    <div>
+        <strong>Cliente:</strong> {{ preventivo.ordine.veicolo.cliente.cognome }} {{ preventivo.ordine.veicolo.cliente.nome }}<br>
+        <strong>Veicolo:</strong> {{ preventivo.ordine.veicolo.marca }} {{ preventivo.ordine.veicolo.modello }} - {{ preventivo.ordine.veicolo.targa }}
+    </div>
+
+    <h3>Voci di Manodopera</h3>
+    <table>
+        <thead>
+            <tr><th>Descrizione Intervento</th><th style="text-align:right;">Costo</th></tr>
+        </thead>
+        <tbody>
+            <!-- Ciclo sugli interventi tecnici registrati nell'app officina -->
+            {% for it in preventivo.ordine.interventi.all %}
+            <tr>
+                <td>{{ it.descrizione }}</td>
+                <td style="text-align:right;">€ {{ it.costo_manodopera }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Riepilogo Economico -->
+    <table class="totals">
+        <tr><td>Manodopera:</td><td>€ {{ preventivo.totale_manodopera }}</td></tr>
+        <tr><td>Ricambi:</td><td>€ {{ preventivo.totale_ricambi }}</td></tr>
+        <tr class="total-row">
+            <td><strong>TOTALE</strong></td>
+            <!-- Calcolo al volo del totale imponibile -->
+            <td><strong>€ {{ preventivo.totale_manodopera|add:preventivo.totale_ricambi }}</strong></td>
+        </tr>
+    </table>
+
+    <!-- Disclaimer Legale: Indispensabile per evitare che il cliente 
+         confonda il preventivo con una fattura fiscale. -->
+    <div style="margin-top:40px; font-size:12px; color:#666;">
+        Questo documento è un preventivo e non ha valore fiscale. 
+        Per approvare il preventivo contattare l'officina.
+    </div>
+</body>
+</html>

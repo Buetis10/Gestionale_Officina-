@@ -1,0 +1,28 @@
+<!-- Eredita il layout globale del progetto -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    
+    <!-- TITOLO DINAMICO: 
+         Se l'oggetto 'veicolo' esiste nel contesto, il template capisce che siamo in modalità "Modifica".
+         Altrimenti, mostra "Nuovo Veicolo". Questo rende il template riutilizzabile. -->
+    <h3>{% if veicolo %}Modifica Veicolo{% else %}Nuovo Veicolo{% endif %}</h3>
+    
+    <form method="post">
+        <!-- Fondamentale per la sicurezza: protegge il database da attacchi CSRF -->
+        {% csrf_token %}
+
+        <!-- Rendering automatico dei campi del veicolo (Targa, Marca, Modello, KM, etc.).
+             Django genera automaticamente gli input corretti in base al tipo di dato. -->
+        {{ form.as_p }}
+
+        <!-- Pulsante di conferma: invia i dati al server -->
+        <button class="btn btn-success" type="submit">Salva</button>
+
+        <!-- Pulsante Annulla: riporta l'utente alla lista generale dei clienti. 
+             In una versione più rifinita, potrebbe puntare al dettaglio del cliente specifico. -->
+        <a class="btn btn-secondary" href="{% url 'clienti:lista_clienti' %}">Annulla</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+<!-- Eredita il layout globale base.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Intestazione dinamica: mostra il numero dell'ordine e la targa del veicolo 
+         per evitare errori di inserimento da parte dell'operatore. -->
+    <h3>Preventivo per Ordine #{{ ordine.id }} - {{ ordine.veicolo.targa }}</h3>
+    
+    <form method="post">
+        <!-- Token di sicurezza obbligatorio in Django per la protezione dei dati -->
+        {% csrf_token %}
+        
+        <!-- Rendering del form (solitamente contiene lo stato: bozza, approvato, etc.) -->
+        {{ form.as_p }}
+        
+        <button class="btn btn-success" type="submit">Salva</button>
+        <a class="btn btn-secondary" href="{% url 'fatturazione:lista_preventivi' %}">Annulla</a>
+    </form>
+
+    <!-- LOGICA DI RIEPILOGO:
+         Se l'oggetto 'preventivo' esiste già (ovvero non è una creazione da zero), 
+         mostra il riepilogo dei costi calcolati dal sistema. -->
+    {% if preventivo %}
+    <div class="mt-4">
+        <h5>Totali calcolati</h5>
+        <!-- Questi valori sono generati dal metodo 'calcola()' nel modello Python -->
+        <p>Manodopera: {{ preventivo.totale_manodopera }} €</p>
+        <p>Ricambi: {{ preventivo.totale_ricambi }} €</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

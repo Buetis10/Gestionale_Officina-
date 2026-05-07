@@ -1,0 +1,12 @@
+Branch: feature/align-to-traccia
+
+Commit: Allineamento progetto alla traccia fornita
+
+- Aggiunti e aggiornati modelli, view, template e admin per clienti, officina, magazzino e fatturazione
+- Implementato role-based access control (`Profilo`, `role_required`, middleware)
+- Aggiunti form inline per interventi e ricambi nella scheda ordine
+- Aggiunti test per Intervento, Veicolo CRUD e RicambioUsato
+- Aggiornato README con istruzioni WeasyPrint/SMTP e setup
+- Aggiunto script `scripts/setup_and_test.ps1` per setup e test locali
+
+Note: eseguire migrazioni e test localmente prima del deploy. WeasyPrint richiede dipendenze native su Windows.

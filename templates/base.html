@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <!-- Configurazione tecnica e Responsive Design -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE IRON VAULT | Gestionale</title>
+    
+    <!-- Importazione Bootstrap 5 e Icone: la "cassetta degli attrezzi" per la grafica -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        /* TAVOLO DEI COLORI (Design System):
+           Ho definito variabili CSS per cambiare i colori di tutto il sito in un colpo solo.
+           L'estetica scelta è "Vintage/Industrial" (Beige, Terra di Siena, Arancio). */
+        :root {
+            --color-primary: #A0522D;    /* Colore principale (Navbar) */
+            --color-accent: #E35336;     /* Colore di contrasto (Bottoni/Bordi) */
+            --color-bg: #F5F5DC;         /* Sfondo rilassante per gli occhi */
+            --color-card-border: #F4A460; /* Colore per rifinire le tabelle */
+            --text-dark: #3e2723;
+        }
+
+        body { 
+            background-color: var(--color-bg); 
+            color: var(--text-dark);
+        }
+
+        /* PERSONALIZZAZIONE NAVBAR:
+           La rendiamo robusta, con un bordo inferiore che richiama il metallo. */
+        .navbar {
+            background-color: var(--color-primary) !important; 
+            border-bottom: 5px solid var(--color-accent);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        /* BARRA DI RICERCA NELLA NAVBAR:
+           Essenziale per trovare i veicoli al volo senza cambiare pagina.
+           Usa un design arrotondato (pill-style) molto moderno. */
+        .nav-search {
+            border-radius: 20px 0 0 20px;
+            border: 2px solid var(--color-card-border);
+        }
+        .nav-search-btn {
+            border-radius: 0 20px 20px 0;
+            background-color: var(--color-accent);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark shadow">
+        <div class="container">
+            <!-- BRAND: Il nome dell'app con icona dedicata -->
+            <a class="navbar-brand" href="{% url 'officina:dashboard' %}">
+                <i class="bi bi-wrench-adjustable-circle text-info"></i> THE IRON VAULT
+            </a>
+            
+            <!-- Menu Hamburger per dispositivi mobili -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- LINK DI NAVIGAZIONE: Portano alle diverse sezioni (App Django diverse) -->
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'clienti:lista_clienti' %}">Clienti</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'magazzino:inventario' %}">Magazzino</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'fatturazione:lista_preventivi' %}">Fatture</a></li>
+                </ul>
+
+                <!-- MOTORE DI RICERCA TARGA: 
+                     Punta alla view 'cerca_targa' per l'accesso rapido alle schede lavoro. -->
+                <form action="{% url 'officina:cerca_targa' %}" method="get" class="d-flex mx-auto" style="max-width: 300px;">
+                    <input type="text" name="q" class="form-control nav-search" placeholder="Targa veicolo...">
+                    <button class="btn nav-search-btn" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+
+                <!-- AREA UTENTE: Login/Logout dinamico -->
+                <div class="ms-auto d-flex align-items-center">
+                    {% if user.is_authenticated %}
+                        <span class="text-light me-3 small d-none d-md-block">Utente: <strong>{{ user.username }}</strong></span>
+                        <form action="{% url 'logout' %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-light btn-sm">ESCI</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-sm">ACCEDI</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- IL CUORE PULSANTE:
+         Qui è dove Django inietterà il contenuto di tutte le altre pagine 
+         (Dashboard, Scheda Lavoro, Inventario, ecc.) -->
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- JS di Bootstrap per far funzionare menu a tendina e interazioni -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

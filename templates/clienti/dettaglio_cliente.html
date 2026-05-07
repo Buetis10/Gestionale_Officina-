@@ -1,0 +1,45 @@
+<!-- Eredita la struttura globale (barra di navigazione, footer, link CSS) dal file base.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Pulsante di navigazione per tornare rapidamente all'elenco generale -->
+    <a href="{% url 'clienti:lista_clienti' %}" class="btn btn-outline-secondary mb-3">Indietro</a>
+    
+    <!-- Anagrafica Cliente: i dati vengono passati dalla view tramite l'oggetto 'cliente' -->
+    <h3>{{ cliente.cognome }} {{ cliente.nome }}</h3>
+    <p><strong>Telefono:</strong> {{ cliente.telefono }}</p>
+    <p><strong>Email:</strong> {{ cliente.email }}</p>
+    <p><strong>Codice fiscale:</strong> {{ cliente.codice_fiscale }}</p>
+
+    <h4 class="mt-4">Veicoli</h4>
+    <!-- Link per registrare un nuovo mezzo associato a questo specifico cliente (passa l'ID cliente all'URL) -->
+    <a href="{% url 'clienti:crea_veicolo' cliente.id %}" class="btn btn-sm btn-primary mb-2">Aggiungi Veicolo</a>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Targa</th>
+                <th>Modello</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Ciclo for: itera sulla lista 'veicoli' passata nel context dalla view -->
+            {% for v in veicoli %}
+            <tr>
+                <td>{{ v.targa }}</td>
+                <td>{{ v.marca }} {{ v.modello }}</td>
+                <td>
+                    <!-- Pulsante per accedere alla scheda tecnica dello specifico veicolo -->
+                    <a class="btn btn-sm btn-outline-primary" href="{% url 'clienti:dettaglio_veicolo' v.id %}">Apri</a>
+                </td>
+            </tr>
+            {% empty %}
+            <!-- Gestione caso vuoto: se il cliente non ha veicoli, mostra un messaggio cortese invece di una tabella vuota -->
+            <tr><td colspan="3">Nessun veicolo registrato</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

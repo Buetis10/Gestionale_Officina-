@@ -1,0 +1,21 @@
+<!-- Estende il layout globale base.html per coerenza grafica -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Intestazione chiara che conferma l'avvenuta operazione -->
+    <h3>Preventivo inviato</h3>
+    
+    <!-- MESSAGGIO DI CONFERMA:
+         Utilizza le variabili {{ cliente.cognome }} e {{ cliente.nome }} 
+         per rendere il feedback specifico e rassicurante. 
+         L'uso del tag <strong> mette in risalto l'anagrafica del destinatario. -->
+    <p>Preventivo per <strong>{{ cliente.cognome }} {{ cliente.nome }}</strong> inviato con successo.</p>
+    
+    <!-- AZIONE DI RITORNO:
+         Pulsante principale (btn-primary) che riporta l'operatore alla lista dei preventivi. 
+         Questa è una best practice di navigazione (UX) per permettere di continuare il lavoro 
+         senza dover usare le frecce del browser. -->
+    <a class="btn btn-primary" href="{% url 'fatturazione:lista_preventivi' %}">Torna ai preventivi</a>
+</div>
+{% endblock %}

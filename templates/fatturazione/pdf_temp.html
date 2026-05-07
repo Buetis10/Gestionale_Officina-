@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- Viewport fondamentale per la corretta visualizzazione sui tablet dei meccanici -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* SETUP STAMPA: Forza le dimensioni A4 e rimuove i margini del browser */
+        @page { size: A4; margin: 1cm; }
+        
+        body { 
+            font-family: 'Helvetica', sans-serif; 
+            color: #333; 
+            line-height: 1.4;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        /* HEADER FISCALE: 
+           Presenta il numero del documento e la data in modo prominente, 
+           caratteristica essenziale per la conformità contabile. */
+        .header { 
+            border-bottom: 3px solid #0d6efd; 
+            padding-bottom: 20px; 
+            margin-bottom: 30px;
+        }
+        
+        .header h1 { 
+            color: #0d6efd; 
+            font-size: clamp(20px, 5vw, 28px); /* Testo fluido: si adatta allo schermo */
+            text-transform: uppercase;
+        }
+
+        /* BOX INFO CLIENTE: 
+           Un contenitore grigio chiaro (f8f9fa) che raggruppa i dati del destinatario 
+           e del veicolo, rendendoli immediatamente leggibili. */
+        .info-box {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+
+        /* TABELLE PROFESSIONALI: 
+           Utilizzano 'table-layout: auto' per adattare la larghezza delle colonne 
+           al contenuto, con un design a righe alternate (fcfcfc). */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        
+        th { 
+            background-color: #0d6efd; 
+            color: white; 
+            padding: 10px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        /* RIEPILOGO TOTALI: 
+           Posizionato a destra, con il Totale Ivato evidenziato in rosso (dc3545) 
+           per una distinzione immediata tra imponibile e costo finale. */
+        .total-row td {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #dc3545;
+            padding-top: 15px;
+            border-top: 2px solid #333 !important;
+        }
+
+        /* FOOTER: Fissato in fondo alla pagina durante la stampa PDF */
+        @media print {
+            .footer { position: fixed; bottom: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>GESTIONE OFFICINA</h1>
+        <div class="header-sub">
+            <!-- Dati dinamici presi dal modello Fattura -->
+            Documento: <strong>Fattura n. {{ fattura.numero_documento }}</strong><br>
+            Data Emissione: <strong>{{ fattura.data_emissione|date:"d/m/Y" }}</strong>
+        </div>
+    </div>
+
+    <!-- Sezione Anagrafica Incrociata: Cliente + Veicolo -->
+    <div class="info-container">
+        <div class="info-box">
+            <div class="info-title">Dettaglio Cliente e Veicolo</div>
+            <table style="border: none;">
+                <tr style="background: none;">
+                    <td style="border: none;">
+                        <strong>Cliente:</strong><br>
+                        {{ fattura.ordine.veicolo.cliente.cognome }} {{ fattura.ordine.veicolo.cliente.nome }}
+                    </td>
+                    <td style="border: none;">
+                        <strong>Veicolo:</strong><br>
+                        {{ fattura.ordine.veicolo.marca }} {{ fattura.ordine.veicolo.modello }}
+                    </td>
+                </tr>
+                <tr style="background: none;">
+                    <td style="border: none;"><strong>ID Ordine:</strong> #{{ fattura.ordine.id }}</td>
+                    <td style="border: none;">
+                        <strong>Targa:</strong><br>
+                        <!-- Evidenziazione targa con uno sfondo grigio neutro -->
+                        <span style="background: #eee; padding: 2px 5px; border-radius: 3px;">{{ fattura.ordine.veicolo.targa|upper }}</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Dettaglio Tecnico degli interventi svolti -->
+    <div class="section">
+        <h3 style="border-left: 5px solid #0d6efd; padding-left: 10px;">Dettaglio Interventi</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 60%;">Descrizione</th>
+                    <th style="width: 40%; text-align: right;">Costo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for intervento in fattura.ordine.interventi.all %}
+                <tr>
+                    <td>{{ intervento.descrizione }}</td>
+                    <td style="text-align: right;">€ {{ intervento.costo_manodopera }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Riepilogo Contabile Finale -->
+    <div class="totals-wrapper">
+        <table class="totals-table">
+            <tr>
+                <td>Manodopera:</td>
+                <td>€ {{ fattura.totale_manodopera }}</td>
+            </tr>
+            <tr>
+                <td>Ricambi:</td>
+                <td>€ {{ fattura.totale_ricambi }}</td>
+            </tr>
+            <tr>
+                <td style="color: #666; font-size: 11px;">IVA ({{ fattura.iva_applicata }}%):</td>
+                <td style="color: #666; font-size: 11px;">Inclusa</td>
+            </tr>
+            <tr class="total-row">
+                <td>TOTALE:</td>
+                <td>€ {{ fattura.totale_ivato }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        Documento creato con Gestione Officina Digitale - Copia ad uso interno/cliente
+    </div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!-- Estende il layout globale base.html per mantenere la coerenza visiva -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- INTESTAZIONE DINAMICA:
+         Utilizza Flexbox (d-flex) per allineare il titolo a sinistra e il pulsante a destra. 
+         'justify-content-between' assicura che lo spazio sia distribuito correttamente. -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Clienti</h3>
+        <!-- Link per accedere al form di creazione di un nuovo profilo cliente -->
+        <a href="{% url 'clienti:crea_cliente' %}" class="btn btn-primary">Nuovo Cliente</a>
+    </div>
+
+    <!-- TABELLA CLIENTI:
+         'table-striped' aggiunge l'effetto "a righe alternate" (grigio chiaro e bianco) 
+         per migliorare la leggibilità di elenchi lunghi. -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Telefono</th>
+                <th>Email</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- CICLO DI RENDERING: 
+                 Itera sulla variabile 'clienti' inviata dalla View (es. Cliente.objects.all()). -->
+            {% for c in clienti %}
+            <tr>
+                <!-- Visualizza Cognome e Nome (solitamente il cognome va prima per ordine alfabetico) -->
+                <td>{{ c.cognome }} {{ c.nome }}</td>
+                <td>{{ c.telefono }}</td>
+                <td>{{ c.email }}</td>
+                <td>
+                    <!-- Pulsante 'Apri' per accedere alla scheda dettagliata del singolo cliente -->
+                    <a class="btn btn-sm btn-outline-primary" href="{% url 'clienti:dettaglio_cliente' c.id %}">Apri</a>
+                </td>
+            </tr>
+            {% empty %}
+            <!-- STATO VUOTO: 
+                 Se il database è vuoto, mostra un messaggio di avviso invece di una tabella monca.
+                 'colspan="4"' assicura che la cella occupi tutta la larghezza della tabella. -->
+                <tr><td colspan="4">Nessun cliente</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

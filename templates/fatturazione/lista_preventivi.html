@@ -1,0 +1,58 @@
+<!-- Estende il layout globale base.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Preventivi</h3>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Ordine</th>
+                <th>Veicolo</th>
+                <th>Stato</th>
+                <th>Totale</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Ciclo for che itera sulla lista dei preventivi estratti dal database -->
+            {% for p in preventivi %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.ordine.id }}</td>
+                <td>{{ p.ordine.veicolo.targa }}</td>
+                <!-- Mostra lo stato formattato (es. "In attesa" invece di "bozza") -->
+                <td>{{ p.get_stato_display }}</td>
+                
+                <!-- Visualizzazione separata di Manodopera e Ricambi con valore di fallback a 0 -->
+                <td>{{ p.totale_manodopera|default:0 }} + {{ p.totale_ricambi|default:0 }}</td>
+                
+                <td class="d-flex gap-1">
+                    <!-- LOGICA DI AUTORIZZAZIONE E FLUSSO DI LAVORO: -->
+
+                    <!-- 1. Solo il Titolare può gestire la creazione della fattura dall'ordine -->
+                    {% if user.is_authenticated and user.profilo.ruolo|lower == 'titolare' %}
+                        <a class="btn btn-sm btn-primary" href="{% url 'fatturazione:crea_fattura' p.ordine.id %}">Apri</a>
+                    {% endif %}
+
+                    <!-- 2. Titolare e Receptionist possono inviare il preventivo via email al cliente -->
+                    {% if user.is_authenticated and user.profilo.ruolo|lower in ['titolare','receptionist'] %}
+                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'fatturazione:invia_preventivo' p.id %}">Invia</a>
+                    {% endif %}
+
+                    <!-- 3. CONVERSIONE: Se il preventivo è 'approvato', solo il Titolare può trasformarlo in fattura definitiva -->
+                    {% if p.stato == 'approvato' and user.is_authenticated and user.profilo.ruolo|lower == 'titolare' %}
+                        <a class="btn btn-sm btn-success" href="{% url 'fatturazione:converti_preventivo' p.id %}">Crea Fattura</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <!-- Gestione tabella vuota -->
+            <tr><td colspan="6">Nessun preventivo</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

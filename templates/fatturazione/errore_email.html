@@ -1,0 +1,19 @@
+<!-- Estende il layout globale base.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Intestazione chiara che indica la natura del problema -->
+    <h3>Errore invio email</h3>
+
+    <!-- Messaggio dinamico: 
+         La variabile {{ message }} viene passata dalla View e contiene 
+         il dettaglio dell'errore (es. "Indirizzo email non valido" o "Server SMTP non raggiungibile"). -->
+    <p>{{ message }}</p>
+
+    <!-- Pulsante di ritorno:
+         Reindirizza l'utente alla lista dei preventivi in modo che possa 
+         riprovare l'invio o controllare i dati del cliente. -->
+    <a class="btn btn-secondary" href="{% url 'fatturazione:lista_preventivi' %}">Indietro</a>
+</div>
+{% endblock %}
