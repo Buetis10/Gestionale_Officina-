@@ -1,6 +1,20 @@
 # Gestionale Officina
 
-Setup rapido sviluppo (Windows):
+Progetto sviluppato durante il periodo di **tirocinio formativo** presso l'azienda **Staff S.p.A.**.
+
+### 🛠 Descrizione del Progetto
+L'obiettivo di questo software è la digitalizzazione dei processi operativi dell'officina. Il sistema permette di gestire l'intero ciclo di vita di una riparazione, dall'accettazione del veicolo fino alla generazione della fattura finale, passando per la gestione dinamica del magazzino ricambi.
+
+### 🌟 Funzionalità principali implementate:
+- **Dashboard di controllo:** Visualizzazione rapida dello stato degli ordini (In attesa, In lavorazione, Completati).
+- **Ricerca Veicoli:** Sistema di ricerca immediata tramite targa per accedere allo storico interventi.
+- **Gestione Magazzino:** Tracciamento dei ricambi utilizzati con aggiornamento automatico delle giacenze.
+- **Interventi e Manodopera:** Registrazione dettagliata delle ore lavorate e delle operazioni effettuate.
+- **Documentazione PDF:** Generazione automatica di fatture e preventivi pronti per la stampa.
+
+---
+
+## 🚀 Setup rapido sviluppo (Windows):
 
 1. Crea virtualenv e attivalo
 
